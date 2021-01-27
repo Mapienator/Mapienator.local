@@ -7,15 +7,17 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-
 import javax.security.auth.login.LoginException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.File;
 
 import static java.sql.JDBCType.NULL;
 
 public class Main extends ListenerAdapter {
-    public static void main(String[] args) throws LoginException {
-        String token = "";
+    public static void main(String[] args) throws LoginException, ClassNotFoundException {
+        //String token = "ODAwODk1NjM4NzQwNTMzMjQ4.YAYyMA.6Jx1VheaLNG99Yy0Y1mmvOCJi48";
+        String token = args[0];
         // args[0] should be the token
         // We only need 2 intents in this bot. We only respond to messages in guilds and private channels.
         // All other events will be disabled.
@@ -23,6 +25,8 @@ public class Main extends ListenerAdapter {
                 .addEventListeners(new Main())
                 .setActivity(Activity.watching("Cabbage Grow"))
                 .build();
+        Logger logger = LoggerFactory.getLogger(Main.class);
+        logger.info("This is how you configure Java Logging with SLF4J");
 
     }
 
