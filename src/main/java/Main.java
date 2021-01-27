@@ -15,7 +15,7 @@ import static java.sql.JDBCType.NULL;
 
 public class Main extends ListenerAdapter {
     public static void main(String[] args) throws LoginException {
-        String token = "ODAwODk1NjM4NzQwNTMzMjQ4.YAYyMA.KcHzbDmWkAtPzln6dz8SyGiu9gI";
+        String token = "";
         // args[0] should be the token
         // We only need 2 intents in this bot. We only respond to messages in guilds and private channels.
         // All other events will be disabled.
