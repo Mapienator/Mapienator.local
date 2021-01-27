@@ -16,7 +16,6 @@ import static java.sql.JDBCType.NULL;
 
 public class Main extends ListenerAdapter {
     public static void main(String[] args) throws LoginException, ClassNotFoundException {
-        //String token = "ODAwODk1NjM4NzQwNTMzMjQ4.YAYyMA.6Jx1VheaLNG99Yy0Y1mmvOCJi48";
         String token = args[0];
         // args[0] should be the token
         // We only need 2 intents in this bot. We only respond to messages in guilds and private channels.
