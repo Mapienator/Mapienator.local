@@ -1,0 +1,17 @@
+plugins {
+    id 'java'
+}
+
+group 'com.github.michaelbull'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.1'
+    implementation 'org.json:json:20201115'
+    compile 'net.dv8tion:JDA:4.2.0_227'
+}

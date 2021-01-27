@@ -1,0 +1,3 @@
+rootProject.name = 'Mapienator.local'
+include 'RS3'
+
