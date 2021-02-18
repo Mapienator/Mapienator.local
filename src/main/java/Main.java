@@ -1,6 +1,4 @@
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -11,9 +9,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.*;
 import java.time.format.DateTimeFormatter;
 import javax.imageio.ImageIO;
 import javax.security.auth.login.LoginException;
@@ -25,9 +21,7 @@ import java.io.File;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-
-import static java.sql.JDBCType.NULL;
+import java.util.Scanner;
 
 public class Main extends ListenerAdapter {
     public static void main(String[] args) throws LoginException {
@@ -49,12 +43,9 @@ public class Main extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
 
         Message msg = event.getMessage();
-        if (msg.getContentRaw().startsWith("!song")) {
-            youtubeUrlRequest(msg, event);
-
-        } else if (msg.getContentRaw().startsWith("doublexp")) {
+        if (msg.getContentRaw().toLowerCase().startsWith("doublexp")) {
             doubleXpCooldown(msg, event);
-        } else if (msg.getContentRaw().startsWith("Cabbage")) {
+        } else if (msg.getContentRaw().toLowerCase().startsWith("cabbage")) {
             sendImage(msg, event);
         }
 
@@ -62,11 +53,22 @@ public class Main extends ListenerAdapter {
 
     public void sendImage(Message msg, MessageReceivedEvent event) {
         try {
+            String fileName = "Recipes.text";
+            File fileFacts = new File(fileName);
+            Scanner scanner = new Scanner(fileFacts);
+            int rows = 0;
+            while (scanner.hasNextLine()) {
+                String data = scanner.nextLine();
+                rows++;
+            }
+            int random = (int) (Math.random() * rows);
+            scanner.close();
+            String line = Files.readAllLines(Paths.get(fileName)).get(random);
             URL url = new URL("https://runescape.wiki/images/thumb/d/de/Cabbage_(2017_Easter_event).png/300px-Cabbage_(2017_Easter_event).png");
             BufferedImage img = ImageIO.read(url);
             File file = new File("Cabbage.png");
             ImageIO.write(img, "png", file);
-            event.getChannel().sendFile(file).queue();
+            event.getChannel().sendMessage(line).addFile(file).queue();
 
         } catch (Exception e) {
             event.getChannel().sendMessage("Error fetching image.").queue();
@@ -75,29 +77,30 @@ public class Main extends ListenerAdapter {
 
     }
 
-    public void youtubeUrlRequest(Message msg, MessageReceivedEvent event) {
-        MessageChannel channel = event.getChannel();
-        long time = System.currentTimeMillis();
-        String message = "https://www.youtube.com/results?search_query=" + msg.getContentRaw().substring(5);
-        channel.sendMessage(message.replace(" ", "+")).queue();
-        //   "https://oldschool.runescape.wiki/images/thumb/9/96/Cabbage_detail.png/1200px-Cabbage_detail.png"
-
-    }
 
     public void doubleXpCooldown(Message msg, MessageReceivedEvent event) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Europe/London"));
-        LocalDateTime doublexp = LocalDateTime.of(2021, 2, 19, 12, 0);
+        LocalDateTime doublExp = LocalDateTime.of(2021, 2, 19, 12, 0);
+        LocalDateTime afterDoublExp = LocalDateTime.of(2021, 3, 1, 12, 0);
 
-        Duration duration = Duration.between(now, doublexp);
+        Duration duration = Duration.between(now, doublExp);
+        Duration runningDuration = Duration.between(now, afterDoublExp);
         long diff = Math.abs(duration.toMinutes());
-        String message = (((diff / 60)) + " Hours untill Double XP.");
-        MessageChannel channel = event.getChannel();
-        //String message = "https://www.youtube.com/results?search_query=" + msg.getContentRaw().substring(5);
-        channel.sendMessage(message).queue();
-        //   "https://oldschool.runescape.wiki/images/thumb/9/96/Cabbage_detail.png/1200px-Cabbage_detail.png"
-
+        long diff2 = Math.abs(runningDuration.toMinutes());
+        if (now.isBefore(doublExp)) {
+            String message = (((diff / 60)) + " Hours until Double XP.");
+            MessageChannel channel = event.getChannel();
+            channel.sendMessage(message).queue();
+        } else if (now.isAfter(doublExp) || now.isBefore(afterDoublExp)) {
+            String message = ("Double XP is currently live!!!! So stop wasting Xp!" + "\r\n" + "Time reminding untill Double Xp is over: " + ((diff2 / 60)) + " Hours");
+            MessageChannel channel = event.getChannel();
+            channel.sendMessage(message).queue();
+        } else if (now.isAfter(afterDoublExp)) {
+            String message = ("You waited too long. DoubleXP ended ");
+            MessageChannel channel = event.getChannel();
+            channel.sendMessage(message).queue();
+        }
     }
-
 }
