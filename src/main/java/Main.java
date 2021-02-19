@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import java.awt.image.BufferedImage;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -17,11 +18,12 @@ import javax.security.auth.login.LoginException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.jar.JarFile;
 
 public class Main extends ListenerAdapter {
     public static void main(String[] args) throws LoginException {
@@ -53,25 +55,35 @@ public class Main extends ListenerAdapter {
 
     public void sendImage(Message msg, MessageReceivedEvent event) {
         try {
-            String fileName = "Recipes.text";
-            File fileFacts = new File(fileName);
-            Scanner scanner = new Scanner(fileFacts);
+            ArrayList<String> list = new ArrayList<>();
+            InputStream facts = Main.class.getClassLoader().getResourceAsStream("CabbageFacts.text"); // Remember to add the text to the jar. However you want to do that.
+            Scanner scanner = new Scanner(facts);
             int rows = 0;
             while (scanner.hasNextLine()) {
                 String data = scanner.nextLine();
+                list.add(data);
                 rows++;
             }
             int random = (int) (Math.random() * rows);
             scanner.close();
-            String line = Files.readAllLines(Paths.get(fileName)).get(random);
+            //String line = Files.readAllLines(Paths.get(facts.getFile())).get(random);
+            String line = list.get(random);
             URL url = new URL("https://runescape.wiki/images/thumb/d/de/Cabbage_(2017_Easter_event).png/300px-Cabbage_(2017_Easter_event).png");
             BufferedImage img = ImageIO.read(url);
             File file = new File("Cabbage.png");
             ImageIO.write(img, "png", file);
             event.getChannel().sendMessage(line).addFile(file).queue();
 
-        } catch (Exception e) {
+        } catch (FileNotFoundException e) {
+            event.getChannel().sendMessage("Error fetching data").queue();
+        } catch (IOException e) {
             event.getChannel().sendMessage("Error fetching image.").queue();
+        } catch (NullPointerException e){
+            URL facts = getClass().getClassLoader().getResource("CabbageFacts.text");
+            if (facts == null) {
+                event.getChannel().sendMessage("Error resource is NULL").queue();
+            }
+            event.getChannel().sendMessage("Error. No idea what. NullPointerException").queue();
         }
 
 
