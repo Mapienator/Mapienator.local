@@ -11,8 +11,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.1'
-    implementation 'org.json:json:20201115'
     compile 'org.slf4j:slf4j-jdk14:1.7.30'
-    compile 'net.dv8tion:JDA:4.2.0_227'
+    compile 'net.dv8tion:JDA:4.2.0_240'
+    compile 'mysql:mysql-connector-java:8.0.23'
 }

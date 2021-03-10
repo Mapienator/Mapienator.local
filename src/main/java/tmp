@@ -1,0 +1,54 @@
+    @Override
+    public void onMessageReceived(MessageReceivedEvent event) {
+
+
+        Message message = event.getMessage();
+        User author = message.getAuthor();
+        String content = message.getContentRaw();
+        Guild guild = event.getGuild();
+
+        Member member = event.getMember();                              // Member is the context of the user for the specific guild, containing voice state and roles
+        GuildVoiceState voiceState = member.getVoiceState();            // Check the current voice state of the user
+        VoiceChannel channel = voiceState.getChannel();
+
+        if (!event.getAuthor().isBot()) {
+            if (message.getContentRaw().toLowerCase().startsWith("yak")) {
+                yakTimer(message, event);
+            } else if (message.getContentRaw().toLowerCase().startsWith("cabbage")) {
+                sendImage(message, event);
+            } else if (message.getContentRaw().toLowerCase().startsWith("doublexp")) {
+                replaced(message, event);
+            } else if (message.getContentRaw().toLowerCase().startsWith("voice")) {
+                //String arg = content.substring("!echo ".length());
+                //VoiceChannel channel = null;
+                //onConnecting(channel,event.getTextChannel());
+                connectTo(channel);
+            }
+        }
+    }
+
+    public void yakTimer(Message msg, MessageReceivedEvent event) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Europe/London"));
+        LocalDateTime doublExp = LocalDateTime.of(2021, 3, 1, 12, 0);
+        LocalDateTime afterDoublExp = LocalDateTime.of(2021, 4, 12, 12, 0);
+
+        Duration duration = Duration.between(now, doublExp);
+        Duration runningDuration = Duration.between(now, afterDoublExp);
+        long diff = Math.abs(duration.toMinutes());
+        long diff2 = Math.abs(runningDuration.toMinutes());
+        if (now.isBefore(doublExp)) {
+            String message = (((diff / 60)) + " Hours until Yak Track.");
+            MessageChannel channel = event.getChannel();
+            channel.sendMessage(message).queue();
+        } else if (now.isAfter(doublExp) && now.isBefore(afterDoublExp)) {
+            String message = ("Yak Track is currently live!!!! So stop wasting time!" + "\r\n" + "Time reminding untill the Yak Track is over: " + ((diff2 / 60)) + " Hours " + event.getMember());
+            MessageChannel channel = event.getChannel();
+            channel.sendMessage(message).queue();
+        } else if (now.isAfter(afterDoublExp)) {
+            String message = ("You waited too long. Yak Track ended. Hope you got all the rewards.");
+            MessageChannel channel = event.getChannel();
+            channel.sendMessage(message).queue();
+        }
+    }
