@@ -6,18 +6,22 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
+import javax.management.Query;
 import javax.security.auth.login.LoginException;
 
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.channels.Channel;
+import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.EnumSet;
 
 
 public class Main extends ListenerAdapter {
     public static void main(String[] args) throws LoginException {
+
         String token = args[0];
 
         EnumSet<GatewayIntent> intents = EnumSet.of(
@@ -40,6 +44,12 @@ public class Main extends ListenerAdapter {
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+        Connection connection = null;
+        try {
+            connection = DriverManager.getConnection("jdbc:mysql://localhost/java?", "root", "jhyeurcghwe78trh3j478hf67gr7hfjguytddf64v5");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
         Message message = event.getMessage();
         User author = message.getAuthor();
         String content = message.getContentRaw();
@@ -60,18 +70,45 @@ public class Main extends ListenerAdapter {
                 //String arg = content.substring("voice".length());
                 String cabbage = message.getContentRaw().toLowerCase();
                 int counter = 0;
-                while (cabbage.contains("cabbage")) {
-                    cabbage.replaceFirst("cabbage", "");
-                    counter++;
+//                while (cabbage.contains("cabbage")) {
+//                    cabbage.replaceFirst("cabbage", "");
+//                    counter++;
+//                }
+                try {
+                    cabbageCounter(event, cabbage, guild, author, connection);
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
                 }
-                cabbageCounter(event, cabbage);
             }
         }
     }
 
-    private void cabbageCounter(GuildMessageReceivedEvent event, String cabbage) {
+    private void cabbageCounter(GuildMessageReceivedEvent event, String cabbage, Guild guild, User author, Connection connection) throws SQLException {
+        Statement statement = connection.createStatement();
+        System.out.println(guild.getId() + " " + author.getId());
+        System.out.println("INSERT INTO `java`.`cabbages`\n" + "(`Server`,`User`,`Value1`)VALUES\n" + "("+guild.getId()+", "+author.getId()+", 500);");
+        statement.executeUpdate("INSERT INTO `java`.`cabbages`\n" + "(`Server`,`User`,`Value1`)VALUES\n" + "("+guild.getId()+", "+author.getId()+", 500);");
+
+        ResultSet rs = statement.executeQuery("SELECT * FROM java.cabbages WHERE Server=" + guild.getId() + " AND User=" + author.getId());
+        String tmp = null;
+        while (rs.next()) {
+            System.out.print(rs.getString("id") + " ");
+            System.out.print(rs.getString("Server") + " ");
+            System.out.print(rs.getString("User") + " ");
+            System.out.print(rs.getString("Value1") + " ");
+            System.out.println("NEXT" + " ");
+            tmp = (rs.getString("User") + " and "+rs.getString("Server"));
+        }
+
+
+        String debugString = null;
+
+        System.out.print("");
+        System.out.println(debugString);
+
+        TextChannel channel = event.getChannel();
         TextChannel textChannel = event.getChannel();
-        textChannel.sendMessage("Unable to connect to ``" + textChannel + "Amount " + cabbage).queue(); // never forget to queue()!
+        channel.sendMessage("Your Guild and User ID are: "+ tmp).queue(); // never forget to queue()!
         System.out.println(cabbage);
 
     }
